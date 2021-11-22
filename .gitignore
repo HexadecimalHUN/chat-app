@@ -17,3 +17,5 @@ yarn-error.log
 /public/js
 
 .DS_Store
+/public/css
+/public/js

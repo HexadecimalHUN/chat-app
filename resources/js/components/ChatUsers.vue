@@ -25,7 +25,7 @@
         alt="avatar"
       />
 
-      TODO:INSERT USER PROFILE PICTURES
+      <!-- TODO:INSERT USER PROFILE PICTURES -->
       <!-- <img
         :src="chatUser.avatar_url"
         alt="avatar"

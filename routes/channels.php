@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\ChatRoom;
 use Illuminate\Support\Facades\Broadcast;
 use Illuminate\Support\Facades\Auth;
 
@@ -17,6 +18,8 @@ use Illuminate\Support\Facades\Auth;
 Broadcast::channel('App.Models.User.{id}', function ($user, $id) {
     return (int) $user->id === (int) $id;
 });
-Broadcast::channel('chat', function ($user) {
+
+Broadcast::channel('private-chat.{sessionId}', function ($user, $sessionId) {
+    // can add authentication check to use a chatroom
     return Auth::check();
 });

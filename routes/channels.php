@@ -19,7 +19,10 @@ Broadcast::channel('App.Models.User.{id}', function ($user, $id) {
     return (int) $user->id === (int) $id;
 });
 
-Broadcast::channel('private-chat.{sessionId}', function ($user, $sessionId) {
+
+// We use this channel for every chat related events.
+// Messages, Typing,  
+Broadcast::channel('chat.{sessionId}', function ($user, $sessionId) {
     // can add authentication check to use a chatroom
     return Auth::check();
 });

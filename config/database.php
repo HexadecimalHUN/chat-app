@@ -1,4 +1,5 @@
 <?php
+date_default_timezone_set('Europe/Copenhagen');
 
 use Illuminate\Support\Str;
 
@@ -57,7 +58,7 @@ return [
             'prefix' => '',
             'prefix_indexes' => true,
             'strict' => true,
-            'timezone'  => '+01:00',
+            'timezone'  => '+02:00',
             'engine' => null,
             'options' => extension_loaded('pdo_mysql') ? array_filter([
                 PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),

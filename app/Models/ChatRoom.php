@@ -25,6 +25,7 @@ class ChatRoom extends Model
         return $this->hasMany(User::class, "id", "user_id");
     }
 
+    // TODO: Add session id here when we create the sessions for users
     public static function createRoomForChat($friend_id, $user_id)
     {
         $chatroom_id = uniqid();

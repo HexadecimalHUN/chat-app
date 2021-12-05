@@ -36,11 +36,12 @@
                       alt="avatar"
                     /> -->
                   </a>
+
                   <div class="chat-about">
                     <h6 class="m-b-0">{{ getSelectedUser.name }}</h6>
                     <small
                       >Last seen:
-                      {{ calculateLastSeenTime(getSelectedUser.last_seen) }}
+                      {{ moment(Date.now()).from(getSelectedUser.last_seen) }}
                     </small>
                   </div>
                 </div>
@@ -54,10 +55,19 @@
               :user="user"
             ></chat-messages>
 
+            <!-- <div class="mx-5 d-flex typing-box" v-if="isTyping">
+              <div id="wave">
+                <span class="dot"></span>
+                <span class="dot"></span>
+                <span class="dot"></span>
+              </div>
+              <div class="name">{{ user.name }} is typing</div>
+            </div> -->
+
             <chat-form
               v-on:messagesent="addMessage"
               :user="user"
-              :sessionId="sessionId"
+              :roomId="roomId"
             ></chat-form>
           </div>
 
@@ -83,7 +93,7 @@ export default {
       messages: [],
       isTyping: false,
       selectedUser: null,
-      sessionId: null
+      roomId: null
     };
   },
 
@@ -102,74 +112,64 @@ export default {
   },
 
   watch: {
-    sessionId(val, oldVal) {
+    roomId(val, oldVal) {
       if (oldVal) {
         this.disconnectFromChat(oldVal);
-        this.startChannel(val);
+        this.connectToChat(val);
       }
     }
   },
   methods: {
-    // TODO: FORMAT LAST SEEN TIME
     calculateLastSeenTime(date) {
-      console.log(this.moment(Date.now()).toISOString());
-      console.log(this.moment(date).toISOString());
       const nowDate = this.moment(Date.now());
       return this.moment.duration(nowDate.diff(date)).asSeconds();
     },
 
-    startChannel(sessionId) {
-      window.Echo.private(`private-chat.${sessionId}`).listen(
-        "MessageSent",
-        (e) => {
+    connectToChat(roomId) {
+      const channel = window.Echo.private(`chat.${roomId}`);
+
+      channel
+        .listen("MessageSent", (e) => {
           console.log(e);
           this.messages.push(e.message);
-        }
-      );
-    },
-    disconnectFromChat(sessionId) {
-      window.Echo.leave(`private-chat.${sessionId}`);
-    },
-
-    //TODO: FIX TYPING INDICATOR
-    lisenForWhisper(sessionId) {
-      Echo.private(`private-chat.${sessionId}`).listenForWhisper(
-        "typing",
-        (e) => {
-          console.log("typing..");
+        })
+        .listenForWhisper("typing", (e) => {
           this.isTyping = true;
           setTimeout(() => {
             this.isTyping = false;
-          }, 2000);
-        }
-      );
+          }, 5000);
+        });
     },
+    disconnectFromChat(roomId) {
+      window.Echo.leave(`chat.${roomId}`);
+    },
+
     async selectCurrUser(userData) {
       this.selectedUser = userData;
       this.friendId = userData.id;
 
-      await this.fetchSession();
-      this.fetchMessages();
-      this.lisenForWhisper(this.sessionId);
-      this.startChannel(this.sessionId);
+      await this.fetchRoomId();
+      this.fetchMessages(this.roomId);
+
+      this.connectToChat(this.roomId);
     },
 
-    async fetchSession() {
+    async fetchRoomId() {
       await axios.get(`chat/session/${this.friendId}`).then((response) => {
-        this.sessionId = response.data;
+        this.roomId = response.data;
       });
     },
 
-    fetchMessages() {
+    fetchMessages(roomId) {
       axios
-        .get(`chat/${this.sessionId}/messages`)
+        .get(`chat/${roomId}/messages`)
         .then((response) => (this.messages = response.data));
     },
 
     addMessage(message) {
       this.messages.push(message);
       axios
-        .post(`chat/${this.sessionId}/messages`, message)
+        .post(`chat/${this.roomId}/messages`, message)
         .then((response) => console.log(response.data));
     }
   }

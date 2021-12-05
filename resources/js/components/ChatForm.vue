@@ -19,7 +19,7 @@
 
 <script>
 export default {
-  props: ["user", "sessionId"],
+  props: ["user", "roomId"],
 
   data() {
     return {
@@ -30,13 +30,19 @@ export default {
   watch: {
     newMessage(value) {
       if (value) {
-        Echo.private(`private-chat.${this.sessionId}`).whisper("typing", {
-          name: this.user.name
-        });
+        this.isTyping();
       }
     }
   },
   methods: {
+    isTyping() {
+      const channel = Echo.private(`chat.${this.roomId}`);
+      setTimeout(function () {
+        channel.whisper("typing", {
+          name: this.user
+        });
+      }, 300);
+    },
     sendMessage() {
       if (this.newMessage) {
         this.$emit("messagesent", {

@@ -40,4 +40,5 @@ Vue.component("chat-users", require("./components/ChatUsers.vue").default);
 
 const app = new Vue({
     el: "#app",
+    
 });

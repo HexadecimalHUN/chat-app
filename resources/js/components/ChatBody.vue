@@ -55,14 +55,6 @@
               :user="user"
             ></chat-messages>
 
-            <!-- <div class="mx-5 d-flex typing-box" v-if="isTyping">
-              <div id="wave">
-                <span class="dot"></span>
-                <span class="dot"></span>
-                <span class="dot"></span>
-              </div>
-              <div class="name">{{ user.name }} is typing</div>
-            </div> -->
 
             <chat-form
               v-on:messagesent="addMessage"
@@ -75,7 +67,7 @@
             class="d-flex align-self-center w-100 justify-content-center"
             v-else
           >
-            <h2>No chat open!</h2>
+            <h2>No chat opened yet!</h2>
           </div>
         </div>
       </div>
@@ -137,7 +129,7 @@ export default {
           this.isTyping = true;
           setTimeout(() => {
             this.isTyping = false;
-          }, 5000);
+          }, 3000);
         });
     },
     disconnectFromChat(roomId) {

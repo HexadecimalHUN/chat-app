@@ -26,7 +26,6 @@ export default {
       newMessage: ""
     };
   },
-  // TODO: FIX TYPING INDICATOR HERE TOO
   watch: {
     newMessage(value) {
       if (value) {

@@ -30,11 +30,12 @@
         :src="chatUser.avatar_url"
         alt="avatar"
       /> -->
-
+      <!-- {{ chatUser }} -->
       <div class="about">
         <div class="name">{{ chatUser.name }}</div>
         <div class="status">
-          <i class="fa fa-circle" :class="userIsOnline"></i> online
+          <i class="fa fa-circle" :class="chatUser.online ? 'online' : ''"></i>
+          online
         </div>
       </div>
     </li>
@@ -51,8 +52,12 @@ export default {
       currentChatUser: null
     };
   },
-  created() {
-    this.getUsers();
+
+  async created() {
+    await this.getUsers();
+  },
+  mounted() {
+    this.presenceIndicator();
   },
 
   computed: {
@@ -70,6 +75,29 @@ export default {
   },
 
   methods: {
+    presenceIndicator() {
+      Echo.join(`chat`)
+        .here((users) => {
+          this.chatUsers.forEach((friend, i) => {
+            users.forEach((user) => {
+              if (user.id == friend.id) {
+                this.$set(friend, "online", true);
+              }
+            });
+          });
+        })
+        .joining((user) => {
+          const logedInUse = this.chatUsers.find((u) => u.id == user.id);
+          this.$set(logedInUse, "online", true);
+        })
+        .leaving((user) => {
+          const logedInUse = this.chatUsers.find((u) => u.id == user.id);
+          this.$set(logedInUse, "online", false);
+        })
+        .error((error) => {
+          console.error(error);
+        });
+    },
     selectUser(userData) {
       this.currentChatUser = userData;
       this.$emit("selectuser", this.currentChatUser);

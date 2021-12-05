@@ -8,46 +8,61 @@
           class="message-data"
           :class="message.user_id == user.id ? 'text-right' : ''"
         >
-          <span class="message-data-time">{{
-            formatDateToNormal(message.created_at)
-          }}</span>
+          <span class="message-data-time">
+            {{ formatDateToNormal(message.created_at) }}
+          </span>
+
           <img
             v-if="message.user_id == user.id"
-            src="https://bootdey.com/img/Content/avatar/avatar7.png"
+            :src="user.avatar_url"
             alt="avatar"
           />
-          <!-- <img
-            src="partner.avatar_url"
-            alt="avatar"
-          /> -->
         </div>
+
         <div
-          class="message"
+          class="d-flex message-row"
           :class="
             message.user_id == user.id
-              ? 'other-message float-right'
-              : 'my-message'
+              ? 'justify-content-end'
+              : 'justify-content-start'
           "
         >
-          {{ message.message }}
+          <message-actions
+            v-if="message.user_id == user.id"
+            :message="message"
+            :roomId="roomId"
+          ></message-actions>
+          <div
+            class="message"
+            :class="
+              message.user_id == user.id
+                ? 'other-message float-right'
+                : 'my-message'
+            "
+          >
+            {{ message.is_removed ? "Message is removed" : message.message }}
+          </div>
+        </div>
+      </li>
+
+      <li class="clearfix" v-if="isTyping">
+        <div class="message my-message typing-box">
+          <div class="d-flex" v-if="isTyping">
+            <div id="wave">
+              <span class="dot"></span>
+              <span class="dot"></span>
+              <span class="dot"></span>
+            </div>
+          </div>
         </div>
       </li>
     </ul>
-
-    <div class="mx-5 d-flex typing-box" v-if="isTyping">
-      <div id="wave">
-        <span class="dot"></span>
-        <span class="dot"></span>
-        <span class="dot"></span>
-      </div>
-      <div class="name">{{ user.name }} is typing</div>
-    </div>
   </div>
 </template>
 
 <script>
 export default {
-  props: ["messages", "user", "partner", "isTyping"],
+  props: ["messages", "user", "roomId", "isTyping"],
 
   created() {
     this.updatePosition();

@@ -22,8 +22,14 @@ Route::get('/chat', [App\Http\Controllers\ChatsController::class, 'index']);
 
 Route::get('/chat/users', [App\Http\Controllers\ChatsController::class, 'users']);
 
-Route::get('/chat/session/{sessionId}', [App\Http\Controllers\ChatsController::class, 'fetchSession']);
+// By friend ID find the session
+// for more user in one chat this need to be modified
+Route::get('/chat/session/{friendId}', [App\Http\Controllers\ChatsController::class, 'fetchSession']);
+
 
 
 Route::get('/chat/{sessionId}/messages', [App\Http\Controllers\ChatsController::class, 'fetchMessages']);
 Route::post('/chat/{sessionId}/messages', [App\Http\Controllers\ChatsController::class, 'sendMessage']);
+
+
+Route::put('/chat/{sessionId}/remove-message/{messageId}', [App\Http\Controllers\ChatsController::class, 'removeMessage']);

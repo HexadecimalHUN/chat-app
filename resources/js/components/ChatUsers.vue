@@ -2,40 +2,25 @@
 
 <template>
   <ul class="list-unstyled chat-list mt-2 mb-0">
-    <!-- <li class="clearfix active">
-      <img
-        src="https://bootdey.com/img/Content/avatar/avatar2.png"
-        alt="avatar"
-      />
-      <div class="about">
-        <div class="name">Aiden Chavez</div>
-        <div class="status"><i class="fa fa-circle online"></i> online</div>
-      </div>
-    </li> -->
-
     <li
-      class="clearfix"
+      class="clearfix d-flex"
       v-for="chatUser in chatUsers"
       :key="chatUser.id"
       @click="selectUser(chatUser)"
       :class="{ active: currentChatUserId === chatUser.id }"
     >
-      <img
-        src="https://bootdey.com/img/Content/avatar/avatar2.png"
-        alt="avatar"
-      />
-
       <!-- TODO:INSERT USER PROFILE PICTURES -->
-      <!-- <img
-        :src="chatUser.avatar_url"
-        alt="avatar"
-      /> -->
-      <!-- {{ chatUser }} -->
+      <img :src="chatUser.avatar_url" alt="avatar" />
+
       <div class="about">
         <div class="name">{{ chatUser.name }}</div>
         <div class="status">
           <i class="fa fa-circle" :class="chatUser.online ? 'online' : ''"></i>
-          online
+          {{
+            chatUser.online
+              ? "Online"
+              : moment().from(chatUser.last_seen, true) + "ago."
+          }}
         </div>
       </div>
     </li>
@@ -62,9 +47,7 @@ export default {
 
   computed: {
     // Need to add logic to this
-    userIsOnline() {
-      return "online";
-    },
+
     currentChatUserId() {
       if (!this.currentChatUser) {
         return false;
@@ -93,6 +76,7 @@ export default {
         .leaving((user) => {
           const logedInUse = this.chatUsers.find((u) => u.id == user.id);
           this.$set(logedInUse, "online", false);
+          // TODO: store leave time
         })
         .error((error) => {
           console.error(error);

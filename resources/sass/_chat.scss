@@ -26,7 +26,7 @@
     transition: 0.5s;
     .chat-list {
         li {
-            padding: 10px 15px;
+            padding: 10px 0px;
             list-style: none;
             border-radius: 3px;
             &:hover {
@@ -42,6 +42,7 @@
         }
         img {
             width: 45px;
+            height: 45px;
             border-radius: 50%;
         }
     }
@@ -83,6 +84,28 @@
                 margin-bottom: 30px;
                 &:last-child {
                     margin-bottom: 0px;
+                }
+            }
+        }
+        .message-row:hover .action-box {
+            visibility: visible;
+            opacity: 1;
+        }
+        .action-box {
+            transition: all 0.3s;
+            visibility: hidden;
+            opacity: 0;
+
+            .fa-trash-alt {
+                color: #f55353;
+                &:hover {
+                    color: #fa9898;
+                }
+            }
+            .fa-thumbtack {
+                color: #479ac7;
+                &:hover {
+                    color: #bbe4fa;
                 }
             }
         }
@@ -141,7 +164,7 @@
             text-align: right;
             &:after {
                 border-bottom-color: #e8f1f3;
-                left: 70%;
+                left: auto;
             }
         }
     }

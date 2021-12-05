@@ -25,7 +25,12 @@ Vue.prototype.moment = moment;
 // files.keys().map(key => Vue.component(key.split('/').pop().split('.')[0], files(key).default))
 
 Vue.component("chat-body", require("./components/ChatBody.vue").default);
+Vue.component(
+    "chat-user-header",
+    require("./components/ChatUserHeader.vue").default
+);
 Vue.component("chat-form", require("./components/ChatForm.vue").default);
+Vue.component("message-actions", require("./components/MessageActions.vue").default);
 Vue.component(
     "chat-messages",
     require("./components/ChatMessages.vue").default
@@ -40,5 +45,4 @@ Vue.component("chat-users", require("./components/ChatUsers.vue").default);
 
 const app = new Vue({
     el: "#app",
-    
 });

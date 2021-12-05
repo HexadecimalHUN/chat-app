@@ -4,7 +4,7 @@
   <div class="chat-message clearfix">
     <div class="input-group mb-0">
       <a class="input-group-prepend" @click.prevent="sendMessage">
-        <span class="input-group-text"><i class="fa fa-send"></i></span>
+        <span class="input-group-text"><i class="fas fa-paper-plane"></i></span>
       </a>
       <input
         type="text"

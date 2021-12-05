@@ -5,7 +5,7 @@
     <div class="row clearfix">
       <div class="col-lg-12">
         <div class="card chat-app d-flex flex-row">
-          <div id="plist" class="people-list col-3">
+          <div id="plist" class="people-list col-lg-3 col-md-4">
             <div class="input-group">
               <div class="input-group-prepend">
                 <span class="input-group-text"
@@ -18,43 +18,19 @@
             <chat-users v-on:selectuser="selectCurrUser"></chat-users>
           </div>
 
-          <div class="chat col-9 d-flex flex-column" v-if="!!selectedUser">
-            <div class="chat-header clearfix">
-              <div class="row">
-                <div class="col-lg-6">
-                  <a
-                    href="javascript:void(0);"
-                    data-toggle="modal"
-                    data-target="#view_info"
-                  >
-                    <img
-                      src="https://bootdey.com/img/Content/avatar/avatar2.png"
-                      alt="avatar"
-                    />
-                    <!-- <img
-                      :src="getSelectedUser.avatar_url"
-                      alt="avatar"
-                    /> -->
-                  </a>
-
-                  <div class="chat-about">
-                    <h6 class="m-b-0">{{ getSelectedUser.name }}</h6>
-                    <small
-                      >Last seen:
-                      {{ moment(Date.now()).from(getSelectedUser.last_seen) }}
-                    </small>
-                  </div>
-                </div>
-              </div>
-            </div>
+          <div
+            class="chat col-lg-9 col-md-8 d-flex flex-column"
+            v-if="!!selectedUser"
+          >
+            <chat-user-header :user="getSelectedUser"></chat-user-header>
 
             <!-- TODO: Change parner link -->
             <chat-messages
               :messages="messages"
               :isTyping="isTyping"
               :user="user"
+              :roomId="roomId"
             ></chat-messages>
-
 
             <chat-form
               v-on:messagesent="addMessage"
@@ -125,6 +101,14 @@ export default {
           console.log(e);
           this.messages.push(e.message);
         })
+        .listen("MessageDelete", (e) => {
+          console.log("message has been deleted!");
+          console.log(e);
+          const deletedMessage = this.messages.find(
+            (m) => m.id == e.message.id
+          );
+          this.$set(deletedMessage, "is_removed", true);
+        })
         .listenForWhisper("typing", (e) => {
           this.isTyping = true;
           setTimeout(() => {
@@ -159,6 +143,7 @@ export default {
     },
 
     addMessage(message) {
+      this.isTyping = false;
       this.messages.push(message);
       axios
         .post(`chat/${this.roomId}/messages`, message)

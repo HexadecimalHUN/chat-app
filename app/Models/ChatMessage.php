@@ -9,6 +9,10 @@ class ChatMessage extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        'is_removed',
+    ];
+
     public function user()
     {
         // The class that embodies the table in the database

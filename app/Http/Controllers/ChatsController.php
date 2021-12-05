@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\MessageDelete;
 use App\Events\MessageSent;
 use App\Models\ChatMessage;
 use App\Models\User;
@@ -43,9 +44,10 @@ class ChatsController extends Controller
         error_log('Messages fetched');
 
         return ChatMessage::with('rooms')
-        -> where(['chat_room_id' => $chat_room_id])
-        ->orderBy('created_at', 'ASC')
-        ->get();
+        ->  where(['chat_room_id' => $chat_room_id])
+        ->  orderBy('created_at', 'ASC')
+        // ->  limit(20)
+        ->  get();
     }
 
     /**
@@ -57,19 +59,19 @@ class ChatsController extends Controller
     public function sendMessage(Request $request, $chat_room_id)
     {
         // construct message object and save it to the DB
-        $new_message = ChatMessage::make();
-        $new_message->user_id = Auth::id();
-        $new_message->message = $request->message;
-        $new_message->chat_room_id = $chat_room_id;
-        $new_message->save();
+        $new_message   =  ChatMessage::make();
+        $new_message  ->  user_id = Auth::id();
+        $new_message  ->  message = $request->message;
+        $new_message  ->  chat_room_id = $chat_room_id;
+        $new_message  ->  save();
 
       
         $request->chat_room_id = $chat_room_id;
         error_log($new_message);
         
-        $user = User::find(Auth::id());
-        $user->last_seen = now();
-        $user->save();
+        $user   =   User::find(Auth::id());
+        $user   ->  last_seen = now();
+        $user   ->  save();
         // Broadcast this message to the other user
         broadcast(new MessageSent($new_message))->toOthers();
 
@@ -94,5 +96,27 @@ class ChatsController extends Controller
             error_log($chat_room_id['chat_room_id']);
             return $chat_room_id['chat_room_id'];
         }
+    }
+
+    public function removeMessage($chat_room_id, $messageId)
+    {
+        error_log("messageID " . $messageId);
+
+        $messageWannaBeRemoved  =   ChatMessage::where(
+            [
+            'id'                =>  $messageId,
+            'chat_room_id'      =>  $chat_room_id,
+            'user_id'           =>  Auth::id(),
+            ]
+        )->first();
+        
+        $messageWannaBeRemoved
+        ->update(['is_removed' => true]);
+        
+        error_log($messageWannaBeRemoved);
+        
+        broadcast(new MessageDelete($messageWannaBeRemoved))->toOthers();
+
+        return $messageWannaBeRemoved;
     }
 }

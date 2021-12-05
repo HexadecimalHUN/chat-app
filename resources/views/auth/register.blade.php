@@ -34,7 +34,7 @@
                                 @enderror
                             </div>
                         </div>
-                        <!-- 
+
                         <div class="form-group row">
                             <label for="avatar_url"
                                    class="col-md-4 col-form-label text-md-right">{{ __('Avatar Url') }}</label>
@@ -44,7 +44,6 @@
                                        type="text"
                                        class="form-control @error('avatar_url') is-invalid @enderror"
                                        name="avatar_url"
-                                       required
                                        autocomplete="new-avatar_url">
 
                                 @error('avatar_url')
@@ -54,7 +53,7 @@
                                 </span>
                                 @enderror
                             </div>
-                        </div> -->
+                        </div>
 
                         <div class="form-group row">
                             <label for="email"

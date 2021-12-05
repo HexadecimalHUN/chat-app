@@ -14,8 +14,8 @@ class AddMetaDataToUsersTable extends Migration
     public function up()
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->string('avatar_url')->nullable();
-            $table->timestamp('last_seen');
+            $table->string('avatar_url')->default('/images/avatar_placeholder.png');
+            $table->timestamp('last_seen')->default(now());
         });
     }
 

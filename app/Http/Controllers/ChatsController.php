@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Events\MessageDelete;
 use App\Events\MessageSent;
+use App\Events\BlockUnblockUser;
 use App\Models\ChatMessage;
 use App\Models\User;
 use App\Models\ChatRoom;
@@ -79,7 +80,7 @@ class ChatsController extends Controller
     }
 
 
-    public function fetchSession($friend_id)
+    public function fetchChatRoomId($friend_id)
     {
         error_log("this is the friend ID: ".$friend_id);
        
@@ -98,6 +99,14 @@ class ChatsController extends Controller
         }
     }
 
+    public function fetchChatRoom($chat_room_id)
+    {
+        return ChatRoom::where([
+            'chat_room_id' => $chat_room_id,
+            'user_id' => Auth::id()
+        ])->get()->first();
+    }
+
     public function removeMessage($chat_room_id, $messageId)
     {
         error_log("messageID " . $messageId);
@@ -109,14 +118,39 @@ class ChatsController extends Controller
             'user_id'           =>  Auth::id(),
             ]
         )->first();
-        
+            
         $messageWannaBeRemoved
-        ->update(['is_removed' => true]);
-        
+            ->update(['is_removed' => true]);
+            
         error_log($messageWannaBeRemoved);
-        
+            
         broadcast(new MessageDelete($messageWannaBeRemoved))->toOthers();
-
+        
         return $messageWannaBeRemoved;
+    }
+    
+    public function blockChatWithUser($chat_room_id)
+    {
+        $chatToBlock = ChatRoom::where([
+            'chat_room_id' => $chat_room_id
+        ]);
+        $chatToBlock ->update([
+                'is_blocked'      => true,
+                'blocked_by'    => Auth::id(),
+            ]);
+        broadcast(new BlockUnblockUser($chat_room_id, true, Auth::id()))->toOthers();
+    }
+    
+    public function unblockChatWithUser($chat_room_id)
+    {
+        $chatToBlock = ChatRoom::where([
+            'chat_room_id' => $chat_room_id
+        ]);
+        $chatToBlock->update([
+                'is_blocked'      => false,
+                'blocked_by'    => null
+            ]);
+        
+        broadcast(new BlockUnblockUser($chat_room_id, false, Auth::id()))->toOthers();
     }
 }

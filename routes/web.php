@@ -22,14 +22,21 @@ Route::get('/chat', [App\Http\Controllers\ChatsController::class, 'index']);
 
 Route::get('/chat/users', [App\Http\Controllers\ChatsController::class, 'users']);
 
-// By friend ID find the session
+// By friend ID find the room
 // for more user in one chat this need to be modified
-Route::get('/chat/session/{friendId}', [App\Http\Controllers\ChatsController::class, 'fetchSession']);
+Route::get('/chat/room/{friendId}', [App\Http\Controllers\ChatsController::class, 'fetchChatRoomId']);
+
+Route::get('/chat/room/data/{chatroomId}', [App\Http\Controllers\ChatsController::class, 'fetchChatRoom']);
 
 
 
-Route::get('/chat/{sessionId}/messages', [App\Http\Controllers\ChatsController::class, 'fetchMessages']);
-Route::post('/chat/{sessionId}/messages', [App\Http\Controllers\ChatsController::class, 'sendMessage']);
+
+Route::get('/chat/{chatroomId}/messages', [App\Http\Controllers\ChatsController::class, 'fetchMessages']);
+Route::post('/chat/{chatroomId}/messages', [App\Http\Controllers\ChatsController::class, 'sendMessage']);
 
 
-Route::put('/chat/{sessionId}/remove-message/{messageId}', [App\Http\Controllers\ChatsController::class, 'removeMessage']);
+Route::put('/chat/{chatroomId}/remove-message/{messageId}', [App\Http\Controllers\ChatsController::class, 'removeMessage']);
+
+
+Route::put('/chat/{chatroomId}/block', [App\Http\Controllers\ChatsController::class, 'blockChatWithUser']);
+Route::put('/chat/{chatroomId}/unblock', [App\Http\Controllers\ChatsController::class, 'unblockChatWithUser']);

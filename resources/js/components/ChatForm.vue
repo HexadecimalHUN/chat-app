@@ -7,6 +7,7 @@
         <span class="input-group-text"><i class="fas fa-paper-plane"></i></span>
       </a>
       <input
+        :disabled="!!roomData.is_blocked"
         type="text"
         class="form-control"
         placeholder="Enter text here..."
@@ -19,7 +20,7 @@
 
 <script>
 export default {
-  props: ["user", "roomId"],
+  props: ["user", "roomId", "roomData"],
 
   data() {
     return {

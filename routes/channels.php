@@ -21,12 +21,14 @@ Broadcast::channel('App.Models.User.{id}', function ($user, $id) {
 
 
 // We use this channel for every chat related events.
-// Messages, Typing,
+// Messages, Typing, Delete Message, Un/Block User
 Broadcast::channel('chat.{sessionId}', function ($user, $sessionId) {
     // can add authentication check to use a chatroom
     return Auth::check();
 });
 
+// This channel is for only general purposes that every user can recieve
+// Presence indicator....
 Broadcast::channel('chat', function ($user) {
     // can add authentication check to use a chatroom
     if (Auth::check()) {

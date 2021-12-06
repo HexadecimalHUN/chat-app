@@ -22,7 +22,12 @@
             class="chat col-lg-9 col-md-8 d-flex flex-column"
             v-if="!!selectedUser"
           >
-            <chat-user-header :user="getSelectedUser"></chat-user-header>
+            <chat-user-header
+              :selectedUser="getSelectedUser"
+              :user="user"
+              :roomId="roomId"
+              :roomData="roomData"
+            ></chat-user-header>
 
             <!-- TODO: Change parner link -->
             <chat-messages
@@ -36,6 +41,7 @@
               v-on:messagesent="addMessage"
               :user="user"
               :roomId="roomId"
+              :roomData="roomData"
             ></chat-form>
           </div>
 
@@ -61,7 +67,8 @@ export default {
       messages: [],
       isTyping: false,
       selectedUser: null,
-      roomId: null
+      roomId: null,
+      roomData: {}
     };
   },
 
@@ -109,6 +116,9 @@ export default {
           );
           this.$set(deletedMessage, "is_removed", true);
         })
+        .listen("BlockUnblockUser", (e) => {
+          this.roomData = e;
+        })
         .listenForWhisper("typing", (e) => {
           this.isTyping = true;
           setTimeout(() => {
@@ -125,13 +135,19 @@ export default {
       this.friendId = userData.id;
 
       await this.fetchRoomId();
+      this.fetchRoom(this.roomId);
       this.fetchMessages(this.roomId);
-
       this.connectToChat(this.roomId);
     },
 
+    fetchRoom(roomId) {
+      axios.get(`chat/room/data/${roomId}`).then((response) => {
+        this.roomData = response.data;
+        console.log(response.data);
+      });
+    },
     async fetchRoomId() {
-      await axios.get(`chat/session/${this.friendId}`).then((response) => {
+      await axios.get(`chat/room/${this.friendId}`).then((response) => {
         this.roomId = response.data;
       });
     },

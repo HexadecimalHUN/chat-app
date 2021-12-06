@@ -34,7 +34,8 @@
           <message-actions
             v-if="message.user_id == user.id"
             :message="message"
-            :roomId="roomId"
+            v-on:pinMessage="messagePinned"
+            :user="user"
           ></message-actions>
           <div class="d-flex flex-column">
             <div
@@ -55,6 +56,12 @@
               }}
             </div>
           </div>
+          <message-actions
+            v-if="message.user_id !== user.id"
+            :message="message"
+            v-on:pinMessage="messagePinned"
+            :user="user"
+          ></message-actions>
         </div>
       </li>
 
@@ -75,7 +82,7 @@
 
 <script>
 export default {
-  props: ["messages", "user", "roomId", "isTyping"],
+  props: ["messages", "user", "isTyping"],
 
   created() {
     this.updatePosition();
@@ -84,7 +91,9 @@ export default {
     this.$nextTick(this.updatePosition());
   },
   methods: {
-    // TODO: Fix Message possition
+    messagePinned(message) {
+      this.$emit("messagePinned", message);
+    },
     updatePosition() {
       const el = this.$refs.messages;
 

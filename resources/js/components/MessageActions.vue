@@ -3,29 +3,29 @@
 <template>
   <div class="action-box align-self-center px-3" v-if="!message.is_removed">
     <i
+      v-if="message.user_id == user.id"
       class="fas fa-trash-alt m-1"
       @click.prevent="deleteMessage(message.id)"
     ></i>
-    <i class="fas fa-thumbtack m-1" @click.prevent="pinMessage(message.id)"></i>
+    <i class="fas fa-thumbtack m-1" @click.prevent="pinMessage(message)"></i>
   </div>
 </template>
 
 <script>
 export default {
-  props: ["message", "roomId"],
+  props: ["message", "user"],
   methods: {
     deleteMessage(messageId) {
       this.$set(this.message, "is_removed", true);
 
       axios
-        .put(`chat/${this.roomId}/remove-message/${messageId}`)
+        .put(`chat/${this.message.chat_room_id}/remove-message/${messageId}`)
         .then((response) => console.log(response.data));
     },
-    pinMessage(messageId) {
-      this.$set(this.message, "is_pinned", true);
-
+    pinMessage(message) {
+      this.$emit("pinMessage", message);
       axios
-        .put(`chat/${this.roomId}/pin-message/${messageId}`)
+        .post(`chat/${this.message.chat_room_id}/pin-message`, message)
         .then((response) => console.log(response.data));
     }
   }

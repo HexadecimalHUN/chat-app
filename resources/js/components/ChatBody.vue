@@ -6,14 +6,6 @@
       <div class="col-lg-12">
         <div class="card chat-app d-flex flex-row">
           <div id="plist" class="people-list col-lg-3 col-md-4">
-            <!-- <div class="input-group">
-              <div class="input-group-prepend">
-                <span class="input-group-text"
-                  ><i class="fa fa-search"></i
-                ></span>
-              </div>
-              <input type="text" class="form-control" placeholder="Search..." />
-            </div> -->
             <search-field v-on:onchange="searchForUser"></search-field>
 
             <chat-users
@@ -33,12 +25,17 @@
               :roomData="roomData"
             ></chat-user-header>
 
+            <pinned-message
+              v-if="!!pinned[0]"
+              :pinned="pinned"
+            ></pinned-message>
+
             <!-- TODO: Change parner link -->
             <chat-messages
+              v-on:messagePinned="messagePinned"
               :messages="messages"
               :isTyping="isTyping"
               :user="user"
-              :roomId="roomId"
             ></chat-messages>
 
             <chat-form
@@ -73,6 +70,7 @@ export default {
       selectedUser: null,
       roomId: null,
       roomData: {},
+      pinned: [],
       searchTerm: ""
     };
   },
@@ -99,6 +97,10 @@ export default {
     }
   },
   methods: {
+    messagePinned(message) {
+      this.pinned = [message];
+    },
+
     searchForUser(val) {
       this.searchTerm = val;
     },
@@ -126,14 +128,10 @@ export default {
         .listen("BlockUnblockUser", (e) => {
           this.roomData = e;
         })
-        // TODO: IF THE OTHE SIDE CHECK THE MESSAGE CHECK SHOW THAT THE MESSAGE IS CHECKED
+        .listen("PinMessage", async (e) => {
+          await this.fetchPinnedMessage(this.roomId);
+        })
         .listen("CheckMessages", async (e) => {
-          // this.messages = [
-          //   ...e.messages,
-          //   ...this.messages.filter((msg) => !!msg.seen_at)
-          // ].sort((first, second) =>
-          //   this.moment(first.created_at).diff(second.created_at)
-          // );
           await this.fetchMessages(this.roomId);
         })
         .listenForWhisper("typing", (e) => {
@@ -155,6 +153,7 @@ export default {
       await this.fetchRoomId();
       await this.fetchMessages(this.roomId);
 
+      await this.fetchPinnedMessage(this.roomId);
       // If the user open the chat room check the messages.
       await this.checkMessages(this.roomId);
 
@@ -166,6 +165,12 @@ export default {
       await axios.get(`chat/room/data/${roomId}`).then((response) => {
         this.roomData = response.data;
       });
+    },
+
+    async fetchPinnedMessage(roomId) {
+      await axios
+        .get(`/chat/${roomId}/get-pinned`)
+        .then((response) => (this.pinned = response.data));
     },
 
     async fetchRoomId() {

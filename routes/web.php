@@ -36,11 +36,24 @@ Route::post('/chat/{chatroomId}/messages', [App\Http\Controllers\ChatsController
 
 Route::put('/chat/{chatroomId}/remove-message/{messageId}', [App\Http\Controllers\ChatsController::class, 'removeMessage']);
 
+
+
 // TODO: figure out logic to get all unseen messages
 Route::get('/chat/{chatroomId}/unseen-messages/{userId}', [App\Http\Controllers\ChatsController::class, 'unseenMessageCount']);
 
 
+
 Route::put('/chat/{chatroomId}/check-messages/{userId}', [App\Http\Controllers\ChatsController::class, 'checkMessages']);
+
+
+/**
+ *  Pin message and delete pinned message
+ */
+Route::post('/chat/{chatroomId}/pin-message', [App\Http\Controllers\ChatsController::class, 'pinMessage']);
+
+Route::get('/chat/{chatroomId}/get-pinned', [App\Http\Controllers\ChatsController::class, 'getPinnedMessage']);
+
+Route::post('/chat/{chatroomId}/delete-pinned', [App\Http\Controllers\ChatsController::class, 'removePinnedMessage']);
 
 
 Route::put('/chat/{chatroomId}/block', [App\Http\Controllers\ChatsController::class, 'blockChatWithUser']);

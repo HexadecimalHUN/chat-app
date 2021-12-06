@@ -13,7 +13,7 @@
         </a>
 
         <div class="chat-about">
-          <h6 class="m-b-0">{{ selectedUser.name }}</h6>
+          <h6 class="mb-0">{{ selectedUser.name }}</h6>
           <div class="status" v-if="selectedUser.online">
             <i
               class="fa fa-circle"

@@ -6,9 +6,11 @@ use App\Events\MessageDelete;
 use App\Events\MessageSent;
 use App\Events\BlockUnblockUser;
 use App\Events\CheckMessages;
+use App\Events\PinMessage;
 use App\Models\ChatMessage;
 use App\Models\User;
 use App\Models\ChatRoom;
+use App\Models\PinnedMessages;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -79,7 +81,7 @@ class ChatsController extends Controller
         return $new_message;
     }
     /**
-     * TODO:create function that counts the unseen messages;
+     // TODO:create function that counts the unseen messages;
      *
      */
 
@@ -95,7 +97,8 @@ class ChatsController extends Controller
     }
 
     /**
-     * TODO:create function that SEE the unseen messages;
+     * If the user open the chat window or recieve a new message
+     *  this function runs
      *
      */
 
@@ -105,14 +108,10 @@ class ChatsController extends Controller
             'chat_room_id'      =>  $chat_room_id,
             'user_id'           =>  $friend_id,
             'seen_at'           =>  null,
-        ])->get();
+        ]);
 
-        if (!(int) empty($check_message_wanna_be[0])) {
-            ChatMessage::where([
-                'chat_room_id'      =>  $chat_room_id,
-                'user_id'           =>  $friend_id,
-                'seen_at'           =>  null,
-            ])->update(
+        if (!(int) empty($check_message_wanna_be->get()[0])) {
+            $check_message_wanna_be->update(
                 ['seen_at'           =>  now()]
             );
             
@@ -202,4 +201,51 @@ class ChatsController extends Controller
         
         broadcast(new BlockUnblockUser($chat_room_id, false, Auth::id()))->toOthers();
     }
+    
+    
+    public function pinMessage(Request $request)
+    {
+        $pin_already_exists = PinnedMessages::where(["chat_room_id" => $request->chat_room_id])->first();
+        
+        if ((int) empty($pin_already_exists)) {
+            $new_pinned_message   =  PinnedMessages::make();
+            $new_pinned_message   -> chat_room_id = $request->chat_room_id;
+            $new_pinned_message   -> pinned_by = $request->user_id;
+            $new_pinned_message   -> message = $request->message;
+            $new_pinned_message   -> save();
+        
+            broadcast(new PinMessage($new_pinned_message))->toOthers();
+        } else {
+            $pin_already_exists -> message = $request->message;
+            $pin_already_exists -> pinned_by = $request->user_id;
+            $pin_already_exists -> save();
+
+            broadcast(new PinMessage($pin_already_exists))->toOthers();
+        }
+
+        return "Message Pinned!";
+    }
+
+    public function getPinnedMessage($chat_room_id)
+    {
+        return PinnedMessages::where(['chat_room_id' => $chat_room_id])->get();
+    }
+
+    public function deletePinnedMessage($chat_room_id)
+    {
+        return PinnedMessages::where(['chat_room_id' => $chat_room_id])->delete();
+    }
+
+    // public function removePinnedMessage($chat_room_id)
+    // {
+    //     $new_pinned_message   =  PinnedMessages::make();
+    //     $new_pinned_message   -> chat_room_id = $request->chat_room_id;
+    //     $new_pinned_message   -> pinned_by = $request->user_id;
+    //     $new_pinned_message   -> message = $request->message;
+    //     $new_pinned_message   -> save();
+        
+    //     broadcast(new PinMessage($new_pinned_message))->toOthers();
+
+    //     return "Message Pinned!";
+    // }
 }

@@ -4,19 +4,19 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateMessagesTable extends Migration
+class CreatePinnedMessagesTable extends Migration
 {
     /**
-     * Run the migrations.
-     *
-     * @return void
-     */
+    * Run the migrations.
+    *
+    * @return void
+    */
     public function up()
     {
-        Schema::create('chat_messages', function (Blueprint $table) {
-            $table->increments('id');
+        Schema::create('pinned_messages', function (Blueprint $table) {
+            $table->id();
             $table->string('chat_room_id');
-            $table->integer('user_id')->unsigned();
+            $table->integer('pinned_by')->unsigned();
             $table->text('message');
             $table->timestamps();
         });
@@ -29,6 +29,6 @@ class CreateMessagesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('chat_messages');
+        Schema::dropIfExists('pinned_messages');
     }
 }

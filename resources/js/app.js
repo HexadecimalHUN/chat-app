@@ -32,6 +32,10 @@ Vue.component(
     "chat-user-header",
     require("./components/ChatUserHeader.vue").default
 );
+Vue.component(
+    "pinned-message",
+    require("./components/PinnedMessage.vue").default
+);
 Vue.component("chat-form", require("./components/ChatForm.vue").default);
 Vue.component("message-actions", require("./components/MessageActions.vue").default);
 Vue.component(
@@ -39,7 +43,6 @@ Vue.component(
     require("./components/ChatMessages.vue").default
 );
 Vue.component("chat-users", require("./components/ChatUsers.vue").default);
-// Vue.component("chat-rooms", require("./components/ChatRooms.vue").default);
 /**
  * Next, we will create a fresh Vue application instance and attach it to
  * the page. Then, you may begin adding components to this application

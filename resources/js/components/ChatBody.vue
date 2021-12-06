@@ -74,7 +74,6 @@ export default {
 
   computed: {
     getSelectedUser() {
-      console.log(this.selectedUser);
       if (!this.selectedUser) {
         return {
           name: "",
@@ -100,17 +99,18 @@ export default {
       return this.moment.duration(nowDate.diff(date)).asSeconds();
     },
 
+
+
     connectToChat(roomId) {
       const channel = window.Echo.private(`chat.${roomId}`);
 
       channel
-        .listen("MessageSent", (e) => {
-          console.log(e);
+        .listen("MessageSent", async (e) => {
+          // e.message.seen_at = Date.now();
           this.messages.push(e.message);
+          await this.checkMessages(this.roomId);
         })
         .listen("MessageDelete", (e) => {
-          console.log("message has been deleted!");
-          console.log(e);
           const deletedMessage = this.messages.find(
             (m) => m.id == e.message.id
           );
@@ -119,6 +119,16 @@ export default {
         .listen("BlockUnblockUser", (e) => {
           this.roomData = e;
         })
+        // TODO: IF THE OTHE SIDE CHECK THE MESSAGE CHECK SHOW THAT THE MESSAGE IS CHECKED
+        .listen("CheckMessages", async (e) => {
+          // this.messages = [
+          //   ...e.messages,
+          //   ...this.messages.filter((msg) => !!msg.seen_at)
+          // ].sort((first, second) =>
+          //   this.moment(first.created_at).diff(second.created_at)
+          // );
+          await this.fetchMessages(this.roomId);
+        })
         .listenForWhisper("typing", (e) => {
           this.isTyping = true;
           setTimeout(() => {
@@ -126,6 +136,7 @@ export default {
           }, 3000);
         });
     },
+
     disconnectFromChat(roomId) {
       window.Echo.leave(`chat.${roomId}`);
     },
@@ -134,36 +145,54 @@ export default {
       this.selectedUser = userData;
       this.friendId = userData.id;
 
+
       await this.fetchRoomId();
+      await this.fetchMessages(this.roomId);
+
+      // If the user open the chat room check the messages.
+      await this.checkMessages(this.roomId);
+
       this.fetchRoom(this.roomId);
-      this.fetchMessages(this.roomId);
       this.connectToChat(this.roomId);
     },
 
-    fetchRoom(roomId) {
-      axios.get(`chat/room/data/${roomId}`).then((response) => {
+    async fetchRoom(roomId) {
+      await axios.get(`chat/room/data/${roomId}`).then((response) => {
         this.roomData = response.data;
-        console.log(response.data);
       });
     },
+
     async fetchRoomId() {
       await axios.get(`chat/room/${this.friendId}`).then((response) => {
         this.roomId = response.data;
       });
     },
 
-    fetchMessages(roomId) {
-      axios
+    async checkMessages(roomId) {
+      await axios
+        .put(`/chat/${roomId}/check-messages/${this.friendId}`)
+        .then(async (response) => {
+          await this.fetchMessages(this.roomId);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    },
+
+    async fetchMessages(roomId) {
+      await axios
         .get(`chat/${roomId}/messages`)
         .then((response) => (this.messages = response.data));
     },
 
-    addMessage(message) {
+    async addMessage(message) {
       this.isTyping = false;
-      this.messages.push(message);
-      axios
+      const messageIndex = this.messages.push(message);
+      await axios
         .post(`chat/${this.roomId}/messages`, message)
-        .then((response) => console.log(response.data));
+        .then((response) =>
+          this.$set(this.messages, messageIndex - 1, response.data)
+        );
     }
   }
 };

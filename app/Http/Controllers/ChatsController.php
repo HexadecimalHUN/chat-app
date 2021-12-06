@@ -5,11 +5,13 @@ namespace App\Http\Controllers;
 use App\Events\MessageDelete;
 use App\Events\MessageSent;
 use App\Events\BlockUnblockUser;
+use App\Events\CheckMessages;
 use App\Models\ChatMessage;
 use App\Models\User;
 use App\Models\ChatRoom;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class ChatsController extends Controller
 {
@@ -66,24 +68,68 @@ class ChatsController extends Controller
         $new_message  ->  chat_room_id = $chat_room_id;
         $new_message  ->  save();
 
-      
         $request->chat_room_id = $chat_room_id;
-        error_log($new_message);
         
         $user   =   User::find(Auth::id());
         $user   ->  last_seen = now();
         $user   ->  save();
         // Broadcast this message to the other user
         broadcast(new MessageSent($new_message))->toOthers();
-
+        
         return $new_message;
     }
+    /**
+     * TODO:create function that counts the unseen messages;
+     *
+     */
 
+    public function unseenMessageCount($chat_room_id, $user_id)
+    {
+        $unseen_messages_count = ChatMessage::where([
+            'chat_room_id' => $chat_room_id,
+            'user_id'           =>  Auth::id(),
+            'seen_at'           =>  null,
+        ])->count();
 
+        error_log($unseen_messages_count);
+    }
+
+    /**
+     * TODO:create function that SEE the unseen messages;
+     *
+     */
+
+    public function checkMessages($chat_room_id, $friend_id)
+    {
+        $check_message_wanna_be = ChatMessage::where([
+            'chat_room_id'      =>  $chat_room_id,
+            'user_id'           =>  $friend_id,
+            'seen_at'           =>  null,
+        ])->get();
+
+        if (!(int) empty($check_message_wanna_be[0])) {
+            ChatMessage::where([
+                'chat_room_id'      =>  $chat_room_id,
+                'user_id'           =>  $friend_id,
+                'seen_at'           =>  null,
+            ])->update(
+                ['seen_at'           =>  now()]
+            );
+            
+            broadcast(new CheckMessages($chat_room_id))->toOthers();
+
+            return "Messages seen by the user!";
+        }
+
+        return "No message to check!";
+    }
+    
+    /**
+     * This is for figuring out what chatroom connected to users
+     * Need to be improved so more than one user chat room can be created
+     */
     public function fetchChatRoomId($friend_id)
     {
-        error_log("this is the friend ID: ".$friend_id);
-       
         $chat_room_id = ChatRoom::whereIn('user_id', [$friend_id,Auth::id()])
         ->select('chat_room_id', ChatRoom::raw('COUNT(chat_room_id) as count'))
         ->groupBy('chat_room_id')
@@ -94,7 +140,6 @@ class ChatsController extends Controller
         if ($chat_room_id->count <2) {
             return ChatRoom::createRoomForChat($friend_id, Auth::id());
         } else {
-            error_log($chat_room_id['chat_room_id']);
             return $chat_room_id['chat_room_id'];
         }
     }
@@ -107,10 +152,12 @@ class ChatsController extends Controller
         ])->get()->first();
     }
 
+
+    /**
+     * This is for removing a message
+     */
     public function removeMessage($chat_room_id, $messageId)
     {
-        error_log("messageID " . $messageId);
-
         $messageWannaBeRemoved  =   ChatMessage::where(
             [
             'id'                =>  $messageId,
@@ -122,13 +169,15 @@ class ChatsController extends Controller
         $messageWannaBeRemoved
             ->update(['is_removed' => true]);
             
-        error_log($messageWannaBeRemoved);
-            
         broadcast(new MessageDelete($messageWannaBeRemoved))->toOthers();
         
         return $messageWannaBeRemoved;
     }
     
+
+    /**
+     * This is for blocking and unblocking a user
+     */
     public function blockChatWithUser($chat_room_id)
     {
         $chatToBlock = ChatRoom::where([

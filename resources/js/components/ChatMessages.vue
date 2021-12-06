@@ -3,7 +3,11 @@
 <template>
   <div class="chat-history" ref="messages">
     <ul class="m-b-0">
-      <li class="clearfix" v-for="message in messages" :key="message.id">
+      <li
+        class="clearfix"
+        v-for="(message, index) in messages"
+        :key="message.id"
+      >
         <div
           class="message-data"
           :class="message.user_id == user.id ? 'text-right' : ''"
@@ -32,15 +36,24 @@
             :message="message"
             :roomId="roomId"
           ></message-actions>
-          <div
-            class="message"
-            :class="
-              message.user_id == user.id
-                ? 'other-message float-right'
-                : 'my-message'
-            "
-          >
-            {{ message.is_removed ? "Message is removed" : message.message }}
+          <div class="d-flex flex-column">
+            <div
+              class="message"
+              :class="
+                message.user_id == user.id
+                  ? 'other-message float-right align-self-end'
+                  : 'my-message align-self-start'
+              "
+            >
+              {{ message.is_removed ? "Message is removed" : message.message }}
+            </div>
+            <div class="text-muted" v-if="index == messages.length - 1">
+              {{
+                message.seen_at
+                  ? "Seen at:" + moment(message.seen_at).format("hh:mm")
+                  : "Unseen"
+              }}
+            </div>
           </div>
         </div>
       </li>

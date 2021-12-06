@@ -97,6 +97,16 @@ export default {
         .catch((err) => {
           console.log(err);
         });
+      // this.chatUsers.forEach((u) => {
+      //   await axios
+      //     .get("/chat/${chatroomId}/unseen-messages/{userId}")
+      //     .then((response) => {
+      //       this.chatUsers = response.data;
+      //     })
+      //     .catch((err) => {
+      //       console.log(err);
+      //     });
+      // });
     }
   }
 };

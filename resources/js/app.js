@@ -25,6 +25,9 @@ Vue.prototype.moment = moment;
 // files.keys().map(key => Vue.component(key.split('/').pop().split('.')[0], files(key).default))
 
 Vue.component("chat-body", require("./components/ChatBody.vue").default);
+
+Vue.component("search-field", require("./components/SearchField.vue").default);
+
 Vue.component(
     "chat-user-header",
     require("./components/ChatUserHeader.vue").default

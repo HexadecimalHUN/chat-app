@@ -1,41 +1,82 @@
 // resources/assets/js/components/ChatUsers.vue
 
 <template>
-  <ul class="list-unstyled chat-list mt-2 mb-0">
-    <li
-      class="clearfix d-flex"
-      v-for="chatUser in chatUsers"
-      :key="chatUser.id"
-      @click="selectUser(chatUser)"
-      :class="{ active: currentChatUserId === chatUser.id }"
-    >
-      <!-- TODO:INSERT USER PROFILE PICTURES -->
-      <img :src="chatUser.avatar_url" alt="avatar" />
+  <div>
+    <ul class="list-unstyled chat-list mt-2 mb-0" v-if="!searchTerm">
+      <li
+        class="clearfix d-flex"
+        v-for="chatUser in chatUsers"
+        :key="chatUser.id"
+        @click="selectUser(chatUser)"
+        :class="{ active: currentChatUserId === chatUser.id }"
+      >
+        <!-- TODO:INSERT USER PROFILE PICTURES -->
+        <img :src="chatUser.avatar_url" alt="avatar" />
 
-      <div class="about">
-        <div class="name">{{ chatUser.name }}</div>
-        <div class="status">
-          <i class="fa fa-circle" :class="chatUser.online ? 'online' : ''"></i>
-          {{
-            chatUser.online
-              ? "Online"
-              : moment().from(chatUser.last_seen, true) + "ago."
-          }}
+        <div class="about">
+          <div class="name">{{ chatUser.name }}</div>
+          <div class="status">
+            <i
+              class="fa fa-circle"
+              :class="chatUser.online ? 'online' : ''"
+            ></i>
+            {{
+              chatUser.online
+                ? "Online"
+                : moment().from(chatUser.last_seen, true) + "ago."
+            }}
+          </div>
         </div>
-      </div>
-    </li>
-  </ul>
+      </li>
+    </ul>
+
+    <ul class="list-unstyled chat-list mt-2 mb-0" v-else>
+      <li
+        class="clearfix d-flex"
+        v-for="chatUser in filteredUsers"
+        :key="chatUser.id"
+        @click="selectUser(chatUser)"
+      >
+        <img :src="chatUser.avatar_url" alt="avatar" />
+
+        <div class="about">
+          <div class="name">{{ chatUser.name }}</div>
+          <div class="status">
+            <i
+              class="fa fa-circle"
+              :class="chatUser.online ? 'online' : ''"
+            ></i>
+            {{
+              chatUser.online
+                ? "Online"
+                : moment().from(chatUser.last_seen, true) + "ago."
+            }}
+          </div>
+        </div>
+      </li>
+      <li class="text-center" v-if="!filteredUsers[0]" @click="clear">
+        No user found! :(
+      </li>
+    </ul>
+  </div>
 </template>
 
 <script>
 export default {
-  props: ["user"],
+  props: ["user", "searchTerm"],
 
   data() {
     return {
       chatUsers: [],
+      filteredUsers: [],
       currentChatUser: null
     };
+  },
+  watch: {
+    searchTerm(val, oldVal) {
+      const re = new RegExp(val, "gi");
+      this.filteredUsers = this.chatUsers.filter((u) => u.name.match(re));
+    }
   },
 
   async created() {
@@ -84,6 +125,7 @@ export default {
     },
     selectUser(userData) {
       this.currentChatUser = userData;
+      this.searchTerm = "";
       this.$emit("selectuser", this.currentChatUser);
     },
 

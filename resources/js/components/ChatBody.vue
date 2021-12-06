@@ -6,16 +6,20 @@
       <div class="col-lg-12">
         <div class="card chat-app d-flex flex-row">
           <div id="plist" class="people-list col-lg-3 col-md-4">
-            <div class="input-group">
+            <!-- <div class="input-group">
               <div class="input-group-prepend">
                 <span class="input-group-text"
                   ><i class="fa fa-search"></i
                 ></span>
               </div>
               <input type="text" class="form-control" placeholder="Search..." />
-            </div>
+            </div> -->
+            <search-field v-on:onchange="searchForUser"></search-field>
 
-            <chat-users v-on:selectuser="selectCurrUser"></chat-users>
+            <chat-users
+              v-on:selectuser="selectCurrUser"
+              :searchTerm="searchTerm"
+            ></chat-users>
           </div>
 
           <div
@@ -68,7 +72,8 @@ export default {
       isTyping: false,
       selectedUser: null,
       roomId: null,
-      roomData: {}
+      roomData: {},
+      searchTerm: ""
     };
   },
 
@@ -94,12 +99,14 @@ export default {
     }
   },
   methods: {
+    searchForUser(val) {
+      this.searchTerm = val;
+    },
+
     calculateLastSeenTime(date) {
       const nowDate = this.moment(Date.now());
       return this.moment.duration(nowDate.diff(date)).asSeconds();
     },
-
-
 
     connectToChat(roomId) {
       const channel = window.Echo.private(`chat.${roomId}`);
@@ -144,7 +151,6 @@ export default {
     async selectCurrUser(userData) {
       this.selectedUser = userData;
       this.friendId = userData.id;
-
 
       await this.fetchRoomId();
       await this.fetchMessages(this.roomId);

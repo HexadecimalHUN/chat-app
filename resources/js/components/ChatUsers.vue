@@ -10,8 +10,12 @@
         @click="selectUser(chatUser)"
         :class="{ active: currentChatUserId === chatUser.id }"
       >
-        <!-- TODO:INSERT USER PROFILE PICTURES -->
-        <img :src="chatUser.avatar_url" alt="avatar" />
+        <div class="avatar position-relative">
+          <div :class="chatUser.unseenMessages ? 'unseen-message' : ''">
+            {{ chatUser.unseenMessages }}
+          </div>
+          <img :src="chatUser.avatar_url" alt="avatar" />
+        </div>
 
         <div class="about">
           <div class="name">{{ chatUser.name }}</div>
@@ -23,7 +27,7 @@
             {{
               chatUser.online
                 ? "Online"
-                : moment().from(chatUser.last_seen, true) + "ago."
+                : moment().from(chatUser.last_seen, true) + " ago."
             }}
           </div>
         </div>
@@ -37,7 +41,12 @@
         :key="chatUser.id"
         @click="selectUser(chatUser)"
       >
-        <img :src="chatUser.avatar_url" alt="avatar" />
+        <div class="avatar position-relative">
+          <div :class="chatUser.unseenMessages ? 'unseen-message' : ''">
+            {{ chatUser.unseenMessages }}
+          </div>
+          <img :src="chatUser.avatar_url" alt="avatar" />
+        </div>
 
         <div class="about">
           <div class="name">{{ chatUser.name }}</div>
@@ -49,7 +58,7 @@
             {{
               chatUser.online
                 ? "Online"
-                : moment().from(chatUser.last_seen, true) + "ago."
+                : moment().from(chatUser.last_seen, true) + " ago."
             }}
           </div>
         </div>
@@ -81,6 +90,7 @@ export default {
 
   async created() {
     await this.getUsers();
+    this.unseenMessageCount();
   },
   mounted() {
     this.presenceIndicator();
@@ -99,6 +109,16 @@ export default {
   },
 
   methods: {
+    async unseenMessageCount() {
+      await axios.get(`chat/unseen-messages`).then((response) => {
+        this.chatUsers.forEach((u) => {
+          response.data.forEach((m) => {
+            if (u.id == m.sent_to) this.$set(u, "unseenMessages", m.count);
+          });
+        });
+      });
+    },
+
     presenceIndicator() {
       Echo.join(`chat`)
         .here((users) => {
@@ -125,6 +145,7 @@ export default {
     },
     selectUser(userData) {
       this.currentChatUser = userData;
+      this.currentChatUser.unseenMessages = null;
       this.searchTerm = "";
       this.$emit("selectuser", this.currentChatUser);
     },
@@ -139,16 +160,6 @@ export default {
         .catch((err) => {
           console.log(err);
         });
-      // this.chatUsers.forEach((u) => {
-      //   await axios
-      //     .get("/chat/${chatroomId}/unseen-messages/{userId}")
-      //     .then((response) => {
-      //       this.chatUsers = response.data;
-      //     })
-      //     .catch((err) => {
-      //       console.log(err);
-      //     });
-      // });
     }
   }
 };

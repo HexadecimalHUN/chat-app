@@ -28,6 +28,10 @@ Route::get('/chat/room/{friendId}', [App\Http\Controllers\ChatsController::class
 
 Route::get('/chat/room/data/{chatroomId}', [App\Http\Controllers\ChatsController::class, 'fetchChatRoom']);
 
+// TODO: figure out logic to get all unseen messages
+Route::get('/chat/unseen-messages', [App\Http\Controllers\ChatsController::class, 'unseenMessageCount']);
+
+Route::put('/chat/{chatroomId}/check-messages/{userId}', [App\Http\Controllers\ChatsController::class, 'checkMessages']);
 
 
 
@@ -38,12 +42,6 @@ Route::put('/chat/{chatroomId}/remove-message/{messageId}', [App\Http\Controller
 
 
 
-// TODO: figure out logic to get all unseen messages
-Route::get('/chat/{chatroomId}/unseen-messages/{userId}', [App\Http\Controllers\ChatsController::class, 'unseenMessageCount']);
-
-
-
-Route::put('/chat/{chatroomId}/check-messages/{userId}', [App\Http\Controllers\ChatsController::class, 'checkMessages']);
 
 
 /**

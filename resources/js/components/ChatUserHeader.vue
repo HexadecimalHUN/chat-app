@@ -39,7 +39,11 @@
           <i class="fas fa-user-slash"></i>
         </a>
 
-        <a @click.prevent="unblockUser" v-else class="btn btn-outline-success">
+        <a
+          @click.prevent="unblockUser"
+          v-if="roomData.is_blocked"
+          class="btn btn-outline-success"
+        >
           <i class="fas fa-user"></i>
         </a>
       </div>
@@ -57,15 +61,6 @@ export default {
         else return "";
       } else {
         return "";
-      }
-    },
-    showButton() {
-      if (this.roomData.blocked_by == null) {
-        return true;
-      } else if (this.roomData.blocked_by !== this.selectedUser) {
-        return true;
-      } else if (this.roomData.is_blocked == false) {
-        return false;
       }
     }
   },

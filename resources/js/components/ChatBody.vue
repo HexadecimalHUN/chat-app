@@ -115,7 +115,6 @@ export default {
 
       channel
         .listen("MessageSent", async (e) => {
-          // e.message.seen_at = Date.now();
           this.messages.push(e.message);
           await this.checkMessages(this.roomId);
         })

@@ -81,19 +81,38 @@ class ChatsController extends Controller
         return $new_message;
     }
     /**
-     // TODO:create function that counts the unseen messages;
+     * TODO:create function that counts the unseen messages;
      *
      */
 
-    public function unseenMessageCount($chat_room_id, $user_id)
+    public function unseenMessageCount()
     {
-        $unseen_messages_count = ChatMessage::where([
-            'chat_room_id' => $chat_room_id,
-            'user_id'           =>  Auth::id(),
-            'seen_at'           =>  null,
-        ])->count();
+        $rooms_with_loged_in_user = ChatRoom::where([
+            "user_id"  => Auth::id()
+        ])->get();
 
-        error_log($unseen_messages_count);
+        $unseen_messages_array = [];
+
+        foreach ($rooms_with_loged_in_user as &$chat_room) {
+            $unseen_messages_count = ChatMessage::select([
+                'chat_room_id',
+                ChatRoom::raw('user_id as sent_to'),
+                ChatRoom::raw('COUNT(chat_room_id) as count'),
+                ])
+            ->where([
+                'chat_room_id'      => $chat_room->chat_room_id,
+                'seen_at'           =>  null,
+            ])
+            ->where('user_id', '!=', Auth::id())
+            ->groupBy('chat_room_id', 'user_id')
+            ->first();
+            
+            if (!empty($unseen_messages_count)) {
+                array_push($unseen_messages_array, $unseen_messages_count);
+            }
+        }
+        
+        return $unseen_messages_array;
     }
 
     /**
@@ -203,6 +222,9 @@ class ChatsController extends Controller
     }
     
     
+    /**
+     * Pin message function for handling pin delete and change pinned message
+     */
     public function pinMessage(Request $request)
     {
         $pin_already_exists = PinnedMessages::where(["chat_room_id" => $request->chat_room_id])->first();

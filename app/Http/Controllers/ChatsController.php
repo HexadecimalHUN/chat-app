@@ -42,9 +42,11 @@ class ChatsController extends Controller
     /**
      * Fetch all messages
      *
-     * @return ChatMessage
+     * @return ChatMessage[]
+     * @method GET
+     * @param $chat_room_id
      */
-    public function fetchMessages(Request $request, $chat_room_id)
+    public function fetchMessages($chat_room_id)
     {
         error_log('Messages fetched');
 
@@ -60,6 +62,7 @@ class ChatsController extends Controller
      *
      * @param  Request $request
      * @return Response
+     * @method POST
      */
     public function sendMessage(Request $request, $chat_room_id)
     {
@@ -70,19 +73,29 @@ class ChatsController extends Controller
         $new_message  ->  chat_room_id = $chat_room_id;
         $new_message  ->  save();
 
-        $request->chat_room_id = $chat_room_id;
+        // $request->chat_room_id = $chat_room_id;
         
-        $user   =   User::find(Auth::id());
-        $user   ->  last_seen = now();
-        $user   ->  save();
+        
         // Broadcast this message to the other user
         broadcast(new MessageSent($new_message))->toOthers();
         
         return $new_message;
     }
+    
+    
+    public function userLastSeen($friend_id)
+    {
+        $user   =   User::find($friend_id);
+        $user   ->  last_seen = now();
+        $user   ->  save();
+
+        return $user->last_seen;
+    }
+
+
     /**
-     * TODO:create function that counts the unseen messages;
-     *
+     * @method GET
+     * @return array
      */
 
     public function unseenMessageCount()

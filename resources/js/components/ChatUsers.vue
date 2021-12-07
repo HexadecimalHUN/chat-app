@@ -137,7 +137,12 @@ export default {
         .leaving((user) => {
           const logedInUse = this.chatUsers.find((u) => u.id == user.id);
           this.$set(logedInUse, "online", false);
-          // TODO: store leave time
+
+          axios
+            .put(`/chat/user/update${logedInUse.id}`)
+            .then((response) =>
+              this.$set(logedInUse, "last_seen", response.data)
+            );
         })
         .error((error) => {
           console.error(error);

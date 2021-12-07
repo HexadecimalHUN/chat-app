@@ -22,6 +22,9 @@ Route::get('/chat', [App\Http\Controllers\ChatsController::class, 'index']);
 
 Route::get('/chat/users', [App\Http\Controllers\ChatsController::class, 'users']);
 
+
+Route::put('/chat/user/update{friendId}', [App\Http\Controllers\ChatsController::class, 'userLastSeen']);
+
 // By friend ID find the room
 // for more user in one chat this need to be modified
 Route::get('/chat/room/{friendId}', [App\Http\Controllers\ChatsController::class, 'fetchChatRoomId']);

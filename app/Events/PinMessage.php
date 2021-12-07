@@ -18,18 +18,18 @@ class PinMessage implements ShouldBroadcast
     /**
      * Message details
      *
-     * @var PinnedMessages
+     * @var int
      */
-    public $message;
+    public $chat_room_id;
 
     /**
      * Create a new event instance.
      *
      * @return void
      */
-    public function __construct(PinnedMessages $message)
+    public function __construct($chat_room_id)
     {
-        $this->message = $message;
+        $this->chat_room_id = $chat_room_id;
     }
 
     /**
@@ -40,6 +40,6 @@ class PinMessage implements ShouldBroadcast
     public function broadcastOn()
     {
         // shoud create a chanel with the other details
-        return new PrivateChannel('chat.'. $this->message->chat_room_id);
+        return new PrivateChannel('chat.'. $this->chat_room_id);
     }
 }

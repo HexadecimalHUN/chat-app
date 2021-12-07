@@ -53,7 +53,7 @@ Route::post('/chat/{chatroomId}/pin-message', [App\Http\Controllers\ChatsControl
 
 Route::get('/chat/{chatroomId}/get-pinned', [App\Http\Controllers\ChatsController::class, 'getPinnedMessage']);
 
-Route::post('/chat/{chatroomId}/delete-pinned', [App\Http\Controllers\ChatsController::class, 'removePinnedMessage']);
+Route::delete('/chat/{chatroomId}/delete-pinned', [App\Http\Controllers\ChatsController::class, 'deletePinnedMessage']);
 
 
 Route::put('/chat/{chatroomId}/block', [App\Http\Controllers\ChatsController::class, 'blockChatWithUser']);

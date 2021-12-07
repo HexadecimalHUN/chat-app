@@ -214,15 +214,16 @@ class ChatsController extends Controller
             $new_pinned_message   -> message = $request->message;
             $new_pinned_message   -> save();
         
-            broadcast(new PinMessage($new_pinned_message))->toOthers();
+        // broadcast(new PinMessage($request->chat_room_id))->toOthers();
         } else {
             $pin_already_exists -> message = $request->message;
             $pin_already_exists -> pinned_by = $request->user_id;
             $pin_already_exists -> save();
 
-            broadcast(new PinMessage($pin_already_exists))->toOthers();
+            // broadcast(new PinMessage($request->chat_room_id))->toOthers();
         }
-
+        
+        broadcast(new PinMessage($request->chat_room_id))->toOthers();
         return "Message Pinned!";
     }
 
@@ -233,19 +234,13 @@ class ChatsController extends Controller
 
     public function deletePinnedMessage($chat_room_id)
     {
-        return PinnedMessages::where(['chat_room_id' => $chat_room_id])->delete();
-    }
-
-    // public function removePinnedMessage($chat_room_id)
-    // {
-    //     $new_pinned_message   =  PinnedMessages::make();
-    //     $new_pinned_message   -> chat_room_id = $request->chat_room_id;
-    //     $new_pinned_message   -> pinned_by = $request->user_id;
-    //     $new_pinned_message   -> message = $request->message;
-    //     $new_pinned_message   -> save();
+        $removed_wanna_be = PinnedMessages::where(['chat_room_id' => $chat_room_id]);
         
-    //     broadcast(new PinMessage($new_pinned_message))->toOthers();
+        $removed_wanna_be->delete();
 
-    //     return "Message Pinned!";
-    // }
+        error_log($removed_wanna_be->first());
+        
+        broadcast(new PinMessage($chat_room_id))->toOthers();
+        return "Pinned message deleted!";
+    }
 }

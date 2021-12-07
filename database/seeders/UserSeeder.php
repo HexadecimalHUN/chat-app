@@ -16,7 +16,7 @@ class UserSeeder extends Seeder
     public function run()
     {
         DB::table('users')->insert([
-            "name" => "Kiskacsa",
+            "name" => "Kis Kacsa",
             "email" => "kiskacsa@gmail.com",
             "password" => '$2y$10$MEXgPP8QCYtWwkgK47JaRuhHGBcTGj4lahQXLhPQTDt5.TlMALUDm',
             'email_verified_at' => now(),
@@ -27,7 +27,7 @@ class UserSeeder extends Seeder
         ]);
         
         DB::table('users')->insert([
-            "name" => "Nagykacsa",
+            "name" => "Nagy Kacsa",
             "email" => "nagykacsa@gmail.com",
             "password" => '$2y$10$MEXgPP8QCYtWwkgK47JaRuhHGBcTGj4lahQXLhPQTDt5.TlMALUDm',
             'email_verified_at' => now(),
@@ -38,7 +38,7 @@ class UserSeeder extends Seeder
         ]);
         
         DB::table('users')->insert([
-            "name" => "Mamakacsa",
+            "name" => "Mama Kacsa",
             "email" => "mamakacsa@gmail.com",
             "password" => '$2y$10$MEXgPP8QCYtWwkgK47JaRuhHGBcTGj4lahQXLhPQTDt5.TlMALUDm',
             'email_verified_at' => now(),
@@ -48,7 +48,7 @@ class UserSeeder extends Seeder
             'updated_at' => now(),
         ]);
         DB::table('users')->insert([
-            "name" => "Papakacsa",
+            "name" => "Papa Kacsa",
             "email" => "papakacsa@gmail.com",
             "password" => '$2y$10$MEXgPP8QCYtWwkgK47JaRuhHGBcTGj4lahQXLhPQTDt5.TlMALUDm',
             'email_verified_at' => now(),

@@ -23,8 +23,10 @@
 export default {
   props: ["pinned"],
   methods: {
-    removeMessage() {
-      console.log("Message Removed");
+    async removeMessage() {
+      await axios
+        .delete(`/chat/${this.pinned[0].chat_room_id}/delete-pinned`)
+        .then((response) => this.$set(this.pinned, 0, ""));
     }
   }
 };

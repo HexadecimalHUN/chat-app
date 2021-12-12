@@ -28,7 +28,7 @@ Broadcast::channel('chat.{sessionId}', function ($user, $sessionId) {
 });
 
 // This channel is for only general purposes that every user can recieve
-// Presence indicator....
+// Presence indicator and unread message count.
 Broadcast::channel('chat', function ($user) {
     // can add authentication check to use a chatroom
     if (Auth::check()) {

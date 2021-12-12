@@ -10,7 +10,7 @@ class UserSeeder extends Seeder
 {
     /**
      * Run the database seeds.
-     *
+     * The password for all pre-registered acount is -> 12345678
      * @return void
      */
     public function run()
